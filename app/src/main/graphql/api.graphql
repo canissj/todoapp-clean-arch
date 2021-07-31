@@ -1,0 +1,8 @@
+query GetAllTasks {
+  allTasks {
+    id
+    name
+    note
+    isDone
+  }
+}
