@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.core.data.TodoRepository
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
+import com.example.core.usecases.GetAllTodos
 import kotlinx.coroutines.launch
 
-class TodoViewModel(private val todoRepository: TodoRepository) : ViewModel() {
+class TodoViewModel(private val getAllTodos: GetAllTodos) : ViewModel() {
 
     private val _state: MutableLiveData<State> = MutableLiveData()
     val state: LiveData<State> = _state
@@ -17,7 +17,7 @@ class TodoViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     fun getTodos() {
         viewModelScope.launch {
             _state.value = State.Loading
-            when (val result = todoRepository.getAllTodos()) {
+            when (val result = getAllTodos()) {
                 is ResultOf.Success -> {
                     _state.value = State.ShowTodos(result.value)
                 }

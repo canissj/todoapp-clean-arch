@@ -2,9 +2,9 @@ package com.example.todoapp.todolist.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.example.core.data.TodoRepository
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
+import com.example.core.usecases.GetAllTodos
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
@@ -27,7 +27,7 @@ class TodoViewModelTest {
     var rule: TestRule = InstantTaskExecutorRule()
 
     @Mock
-    private lateinit var repository: TodoRepository
+    private lateinit var getAllTodos: GetAllTodos
 
     @Mock
     private lateinit var stateObserver: Observer<State>
@@ -36,7 +36,7 @@ class TodoViewModelTest {
 
     @Before
     fun setUp() {
-        todoViewModel = TodoViewModel(repository)
+        todoViewModel = TodoViewModel(getAllTodos)
     }
 
     @ExperimentalCoroutinesApi
@@ -53,7 +53,7 @@ class TodoViewModelTest {
             )
         )
         val result = ResultOf.Success(expectedTodos)
-        `when`(repository.getAllTodos()).thenReturn(result)
+        `when`(getAllTodos()).thenReturn(result)
 
         val stateLiveData = todoViewModel.state
         stateLiveData.observe(lifeCycleTestOwner, stateObserver)
@@ -74,7 +74,7 @@ class TodoViewModelTest {
         // given
         val lifeCycleTestOwner = LifeCycleTestOwner()
         val result = ResultOf.Failure()
-        `when`(repository.getAllTodos()).thenReturn(result)
+        `when`(getAllTodos()).thenReturn(result)
 
         val stateLiveData = todoViewModel.state
         stateLiveData.observe(lifeCycleTestOwner, stateObserver)

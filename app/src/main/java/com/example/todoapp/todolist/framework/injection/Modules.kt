@@ -13,7 +13,7 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    single<ApolloClient> {
+    factory <ApolloClient> {
         val accessToken = ""
         val log: HttpLoggingInterceptor =
             HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
