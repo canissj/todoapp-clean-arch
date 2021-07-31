@@ -47,8 +47,6 @@ class TodoListFragment : Fragment() {
                 }
             }
         })
-
-        todoViewModel.getTodos()
     }
 
     override fun onDestroyView() {

@@ -7,8 +7,8 @@ class AuthRepositoryImpl(
     private val tokenStorageDataSource: TokenStorageDataSource
 ) : AuthRepository {
 
-    override suspend fun signIn(userName: String, key: String): ResultOf<Boolean> {
-        return when (val signInResult = authDataSource.signIn(userName, key)) {
+    override suspend fun signIn(userName: String): ResultOf<Boolean> {
+        return when (val signInResult = authDataSource.signIn(userName)) {
             is ResultOf.Success -> {
                 tokenStorageDataSource.saveToken(signInResult.value)
                 ResultOf.Success(true)

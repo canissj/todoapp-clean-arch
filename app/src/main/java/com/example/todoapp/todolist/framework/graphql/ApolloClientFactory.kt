@@ -1,11 +1,11 @@
 package com.example.todoapp.todolist.framework.graphql
 
 import com.apollographql.apollo.ApolloClient
-import com.example.core.usecases.GetToken
+import com.example.core.data.TokenStorageDataSource
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
-class ApolloClientFactory(private val getToken: GetToken) {
+class ApolloClientFactory(private val tokenStorageDataSource: TokenStorageDataSource) {
 
     private val log: HttpLoggingInterceptor =
         HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -16,7 +16,7 @@ class ApolloClientFactory(private val getToken: GetToken) {
             .addInterceptor { chain ->
                 val original = chain.request()
                 val builder = original.newBuilder().method(original.method, original.body)
-                builder.header("Authorization", getToken() ?: "")
+                builder.header("Authorization", tokenStorageDataSource.getToken() ?: "")
                 chain.proceed(builder.build())
             }
             .addInterceptor(log)

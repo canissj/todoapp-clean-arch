@@ -7,17 +7,35 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
 import com.example.core.usecases.GetAllTodos
+import com.example.core.usecases.GetToken
 import com.example.core.usecases.SignIn
 import kotlinx.coroutines.launch
 
 class TodoViewModel(
     private val signIn: SignIn,
-    private val getAllTodos: GetAllTodos
+    private val getAllTodos: GetAllTodos,
+    private val getToken: GetToken
 ) :
     ViewModel() {
 
     private val _state: MutableLiveData<State> = MutableLiveData()
     val state: LiveData<State> = _state
+
+    init {
+        fetchToken()
+    }
+
+    private fun fetchToken() {
+        if (getToken().isNullOrEmpty()) {
+            viewModelScope.launch {
+                _state.value = State.Loading
+                signIn("user1")
+                getTodos()
+            }
+        } else {
+            getTodos()
+        }
+    }
 
     fun getTodos() {
         viewModelScope.launch {

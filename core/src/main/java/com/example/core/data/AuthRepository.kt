@@ -3,6 +3,6 @@ package com.example.core.data
 import com.example.core.domain.ResultOf
 
 interface AuthRepository {
-    suspend fun signIn(userName: String, key: String): ResultOf<Boolean>
+    suspend fun signIn(userName: String): ResultOf<Boolean>
     fun getToken(): String?
 }

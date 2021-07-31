@@ -1,10 +1,10 @@
 package com.example.todoapp.todolist.framework.injection
 
-import com.example.core.data.TodoDataSource
-import com.example.core.data.TodoRepository
-import com.example.core.data.TodoRepositoryImpl
-import com.example.core.data.TokenStorageDataSource
+import com.example.core.data.*
 import com.example.core.usecases.GetAllTodos
+import com.example.core.usecases.GetToken
+import com.example.core.usecases.SignIn
+import com.example.todoapp.BuildConfig
 import com.example.todoapp.todolist.framework.graphql.ApolloClientFactory
 import com.example.todoapp.todolist.framework.graphql.GraphQLAuthDataSource
 import com.example.todoapp.todolist.framework.graphql.GraphQLTodoDataSource
@@ -16,7 +16,9 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    factory { ApolloClientFactory(get()) }
+    single<TokenStorageDataSource> { InMemoryTokenStorageDataSource() }
+
+    factory { ApolloClientFactory(tokenStorageDataSource = get()) }
 
     single {
         val apolloClientFactory: ApolloClientFactory = get()
@@ -25,18 +27,34 @@ val appModule = module {
 
     factory(named("auth")) {
         val apolloClientFactory: ApolloClientFactory = get()
-        apolloClientFactory.getApolloClient()
+        apolloClientFactory.getApolloClientForAuth()
     }
 
-    single<TokenStorageDataSource> { InMemoryTokenStorageDataSource() }
+    factory<TodoDataSource> { GraphQLTodoDataSource(apolloClient = get()) }
 
-    factory<TodoDataSource> { GraphQLTodoDataSource(get()) }
+    single<TodoRepository> { TodoRepositoryImpl(todoDataSource = get()) }
 
-    factory<TodoRepository> { TodoRepositoryImpl(get()) }
+    factory { GetAllTodos(todoRepository = get()) }
 
-    factory { GetAllTodos(get()) }
+    // auth
+    single<AuthRepository> {
+        AuthRepositoryImpl(
+            authDataSource = get(),
+            tokenStorageDataSource = get()
+        )
+    }
 
-    factory { GraphQLAuthDataSource(get(named("auth"))) }
+    factory<AuthDataSource> {
+        GraphQLAuthDataSource(
+            apolloClient = get(named("auth")),
+            apiKey = BuildConfig.API_KEY
+        )
+    }
 
-    viewModel { TodoViewModel(get(), get()) }
+    factory { GetToken(authRepository = get()) }
+
+    factory { SignIn(authRepository = get()) }
+
+    // view models
+    viewModel { TodoViewModel(signIn = get(), getAllTodos = get(), getToken = get()) }
 }
