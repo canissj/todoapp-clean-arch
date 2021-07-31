@@ -30,12 +30,11 @@ class SignInTest {
     fun `signIn should return credentials when success`() = runBlockingTest {
         // given
         val userName = "user"
-        val key = "some key"
         val credentials = "credentials"
-        Mockito.`when`(signIn(userName, key)).thenReturn(ResultOf.Success(credentials))
+        Mockito.`when`(signIn(userName)).thenReturn(ResultOf.Success(true))
 
         // when
-        val result = authRepository.signIn(userName, key) as ResultOf.Success
+        val result = authRepository.signIn(userName) as ResultOf.Success
 
         // then
         Assert.assertEquals(credentials, result.value)
@@ -47,10 +46,10 @@ class SignInTest {
         // given
         val userName = "user"
         val key = "some key"
-        Mockito.`when`(signIn(userName, key)).thenReturn(ResultOf.Failure())
+        Mockito.`when`(signIn(userName)).thenReturn(ResultOf.Failure())
 
         // when
-        val result = authRepository.signIn(userName, key)
+        val result = authRepository.signIn(userName)
 
         // then
         Assert.assertTrue(result is ResultOf.Failure)

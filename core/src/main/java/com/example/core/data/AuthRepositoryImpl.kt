@@ -14,7 +14,7 @@ class AuthRepositoryImpl(
                 ResultOf.Success(true)
             }
             is ResultOf.Failure -> {
-                ResultOf.Success(false)
+                signInResult
             }
         }
     }
