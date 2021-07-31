@@ -7,9 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
 import com.example.core.usecases.GetAllTodos
+import com.example.core.usecases.SignIn
 import kotlinx.coroutines.launch
 
-class TodoViewModel(private val getAllTodos: GetAllTodos) : ViewModel() {
+class TodoViewModel(
+    private val signIn: SignIn,
+    private val getAllTodos: GetAllTodos
+) :
+    ViewModel() {
 
     private val _state: MutableLiveData<State> = MutableLiveData()
     val state: LiveData<State> = _state

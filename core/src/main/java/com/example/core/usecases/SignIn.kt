@@ -4,7 +4,7 @@ import com.example.core.data.AuthRepository
 import com.example.core.domain.ResultOf
 
 class SignIn(private val authRepository: AuthRepository) {
-    suspend operator fun invoke(username: String, key: String): ResultOf<String> {
+    suspend operator fun invoke(username: String, key: String): ResultOf<Boolean> {
         return authRepository.signIn(username, key)
     }
 }
