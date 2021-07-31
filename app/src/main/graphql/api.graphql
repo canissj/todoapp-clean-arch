@@ -1,8 +1,12 @@
 query GetAllTasks {
-  allTasks {
-    id
-    name
-    note
-    isDone
-  }
+    allTasks {
+        id
+        name
+        note
+        isDone
+    }
+}
+
+mutation CreateToken($userName: String!, $apiKey: String!) {
+    generateAccessToken(apiKey: $apiKey, userName: $userName)
 }
