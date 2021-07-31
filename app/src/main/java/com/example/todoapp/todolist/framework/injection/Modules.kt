@@ -4,6 +4,7 @@ import com.apollographql.apollo.ApolloClient
 import com.example.core.data.TodoDataSource
 import com.example.core.data.TodoRepository
 import com.example.core.data.TodoRepositoryImpl
+import com.example.core.usecases.GetAllTodos
 import com.example.todoapp.todolist.framework.graphql.GraphQLTodoDataSource
 import com.example.todoapp.todolist.presentation.TodoViewModel
 import okhttp3.OkHttpClient
@@ -12,8 +13,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-
-    factory <ApolloClient> {
+    factory<ApolloClient> {
         val accessToken = ""
         val log: HttpLoggingInterceptor =
             HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -38,6 +38,8 @@ val appModule = module {
     factory<TodoDataSource> { GraphQLTodoDataSource(get()) }
 
     factory<TodoRepository> { TodoRepositoryImpl(get()) }
+
+    factory { GetAllTodos(get()) }
 
     viewModel { TodoViewModel(get()) }
 }

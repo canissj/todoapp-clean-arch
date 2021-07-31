@@ -13,7 +13,7 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class TestTodoRepository {
+class TodoRepositoryTest {
 
     @Mock
     private lateinit var todoDataSource: TodoDataSource
