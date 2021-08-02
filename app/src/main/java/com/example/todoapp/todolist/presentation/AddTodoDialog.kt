@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.example.todoapp.databinding.AddTodoDialogBinding
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -28,7 +29,6 @@ class AddTodoDialog : DialogFragment() {
     ): View {
         _binding = AddTodoDialogBinding.inflate(inflater, container, false)
 
-        dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE);
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT));
 
         return binding.root
