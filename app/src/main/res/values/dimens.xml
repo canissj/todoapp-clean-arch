@@ -1,3 +1,12 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="dp_24">24dp</dimen>
+    <dimen name="dp_32">32dp</dimen>
+    <dimen name="dp_0">0dp</dimen>
+    <dimen name="dp_1">1dp</dimen>
+    <dimen name="dp_8">8dp</dimen>
+    <dimen name="sp_28">28sp</dimen>
+    <dimen name="dp_16">16dp</dimen>
+    <dimen name="add_todo_dialog_width">300dp</dimen>
+    <dimen name="sp_20">20sp</dimen>
 </resources>
