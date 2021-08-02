@@ -90,7 +90,7 @@ class GraphQLTodoDataSourceTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun `getAll should return failure when query has errors`() = runBlockingTest {
+    fun `getAll should return UnknownError when api error`() = runBlockingTest {
         // given
         val errors = listOf(Error("some_error"))
         val builder = Response.builder<GetAllTasksQuery.Data>(GetAllTasksQuery()).errors(errors)
@@ -111,7 +111,28 @@ class GraphQLTodoDataSourceTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun `getAll should return failure when http error`() = runBlockingTest {
+    fun `getAll should return AuthenticationError when auth api error`() = runBlockingTest {
+        // given
+        val errors = listOf(Error("Access token is not valid"))
+        val builder = Response.builder<GetAllTasksQuery.Data>(GetAllTasksQuery()).errors(errors)
+        val response = Response(builder)
+
+        `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
+
+        `when`(queryCall.enqueue(queryCaptor.capture())).thenAnswer {
+            queryCaptor.value.onResponse(response)
+        }
+
+        // when
+        val getAllResult = graphQlDataSource.getAll() as ResultOf.Failure
+
+        // then
+        assertTrue(getAllResult.throwable is DataSourceError.AuthenticationError)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `getAll should return HttpNetworkError when http error`() = runBlockingTest {
         // given
         `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
 
@@ -208,5 +229,33 @@ class GraphQLTodoDataSourceTest {
 
         // then
         assertTrue(createTodoResult.throwable is DataSourceError.UnknownError)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `addTodo should return AuthenticationError when auth api error`() = runBlockingTest {
+        // given
+        val expectedTodo = Todo(
+            id = "generated_id",
+            name = "walk the dog",
+            isDone = true
+        )
+
+        val errors = listOf(Error("Access token is not valid"))
+        val builder =
+            Response.builder<CreateTodoMutation.Data>(CreateTodoMutation("", false)).errors(errors)
+        val response = Response(builder)
+
+        `when`(apolloClient.mutate(any(CreateTodoMutation::class.java))).thenReturn(mutationCall)
+
+        `when`(mutationCall.enqueue(mutationCaptor.capture())).thenAnswer {
+            mutationCaptor.value.onResponse(response)
+        }
+
+        // when
+        val createTodoResult = graphQlDataSource.add(expectedTodo) as ResultOf.Failure
+
+        // then
+        assertTrue(createTodoResult.throwable is DataSourceError.AuthenticationError)
     }
 }
