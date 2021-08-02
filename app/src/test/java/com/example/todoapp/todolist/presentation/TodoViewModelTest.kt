@@ -44,6 +44,9 @@ class TodoViewModelTest {
     @Mock
     private lateinit var stateObserver: Observer<State>
 
+    @Mock
+    private lateinit var toastObserver: Observer<String>
+
     private lateinit var todoViewModel: TodoViewModel
 
     @Before
@@ -138,31 +141,55 @@ class TodoViewModelTest {
     fun `addTodo should post ShowTodos with new todo when success`() = runBlockingTest {
         // given
         val lifeCycleTestOwner = LifeCycleTestOwner()
-        val expectedTodos = listOf(
+        val addedTodo =
             Todo(
-                id = "id",
                 name = "walk the dog",
                 isDone = false
             )
-        )
-        val successResult = ResultOf.Success(expectedTodos)
-        val failureResult = ResultOf.Failure()
+        val expectedTodo = addedTodo.copy(id = "generated_id")
+        val expectedTodos = listOf(expectedTodo)
 
-        `when`(getAllTodos())
-            .thenReturn(successResult)
-            .thenReturn(failureResult)
+        `when`(addTodo(addedTodo)).thenReturn(ResultOf.Success(expectedTodo))
 
         val stateLiveData = todoViewModel.state
         stateLiveData.observe(lifeCycleTestOwner, stateObserver)
 
         // when
         lifeCycleTestOwner.onResume()
-        todoViewModel.getTodos() // success call to fill cache
-        todoViewModel.getTodos() // failure call but should return cache
+        todoViewModel.addNewTodo("walk the dog")
 
         // then
-        verify(stateObserver, times(3)).onChanged(State.Loading)
-        verify(stateObserver, times(2)).onChanged(State.ShowTodos(expectedTodos))
+        verify(stateObserver, times(2)).onChanged(State.Loading)
+        verify(stateObserver).onChanged(State.ShowTodos(expectedTodos))
+        verifyNoMoreInteractions(stateObserver)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `addTodo should post showToast with error msg when failure`() = runBlockingTest {
+        // given
+        val lifeCycleTestOwner = LifeCycleTestOwner()
+        val addedTodo =
+            Todo(
+                name = "walk the dog",
+                isDone = false
+            )
+
+        `when`(addTodo(addedTodo)).thenReturn(ResultOf.Failure())
+
+        val stateLiveData = todoViewModel.state
+        stateLiveData.observe(lifeCycleTestOwner, stateObserver)
+
+        val toastLiveData = todoViewModel.toastMessage
+        toastLiveData.observe(lifeCycleTestOwner, toastObserver)
+
+        // when
+        lifeCycleTestOwner.onResume()
+        todoViewModel.addNewTodo("walk the dog")
+
+        // then
+        verify(stateObserver, times(2)).onChanged(State.Loading)
+        verify(toastObserver).onChanged("Could not add new todo")
         verifyNoMoreInteractions(stateObserver)
     }
 }
