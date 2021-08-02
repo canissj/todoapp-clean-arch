@@ -4,7 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
+import com.example.core.usecases.AddTodo
 import com.example.core.usecases.GetAllTodos
+import com.example.core.usecases.GetToken
+import com.example.core.usecases.SignIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
@@ -30,13 +33,22 @@ class TodoViewModelTest {
     private lateinit var getAllTodos: GetAllTodos
 
     @Mock
+    private lateinit var signIn: SignIn
+
+    @Mock
+    private lateinit var getToken: GetToken
+
+    @Mock
+    private lateinit var addTodo: AddTodo
+
+    @Mock
     private lateinit var stateObserver: Observer<State>
 
     private lateinit var todoViewModel: TodoViewModel
 
     @Before
     fun setUp() {
-        todoViewModel = TodoViewModel(getAllTodos)
+        todoViewModel = TodoViewModel(signIn, getAllTodos, addTodo, getToken)
     }
 
     @ExperimentalCoroutinesApi

@@ -1,8 +1,10 @@
 package com.example.todoapp.todolist.framework
 
+import CreateTodoMutation
 import GetAllTasksQuery
 import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.ApolloMutationCall
 import com.apollographql.apollo.ApolloQueryCall
 import com.apollographql.apollo.api.Error
 import com.apollographql.apollo.api.Response
@@ -35,8 +37,14 @@ class GraphQLTodoDataSourceTest {
     @Mock
     private lateinit var queryCall: ApolloQueryCall<GetAllTasksQuery.Data>
 
+    @Mock
+    private lateinit var mutationCall: ApolloMutationCall<CreateTodoMutation.Data>
+
     @Captor
-    private lateinit var captor: ArgumentCaptor<ApolloCall.Callback<GetAllTasksQuery.Data>>
+    private lateinit var queryCaptor: ArgumentCaptor<ApolloCall.Callback<GetAllTasksQuery.Data>>
+
+    @Captor
+    private lateinit var mutationCaptor: ArgumentCaptor<ApolloCall.Callback<CreateTodoMutation.Data>>
 
     private lateinit var graphQlDataSource: TodoDataSource
 
@@ -68,8 +76,8 @@ class GraphQLTodoDataSourceTest {
 
         `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
 
-        `when`(queryCall.enqueue(captor.capture())).thenAnswer {
-            captor.value.onResponse(response)
+        `when`(queryCall.enqueue(queryCaptor.capture())).thenAnswer {
+            queryCaptor.value.onResponse(response)
         }
 
         // when
@@ -91,8 +99,8 @@ class GraphQLTodoDataSourceTest {
 
         `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
 
-        `when`(queryCall.enqueue(captor.capture())).thenAnswer {
-            captor.value.onResponse(response)
+        `when`(queryCall.enqueue(queryCaptor.capture())).thenAnswer {
+            queryCaptor.value.onResponse(response)
         }
 
         // when
@@ -108,8 +116,8 @@ class GraphQLTodoDataSourceTest {
         // given
         `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
 
-        `when`(queryCall.enqueue(captor.capture())).thenAnswer {
-            captor.value.onFailure(ApolloNetworkException("network_error"))
+        `when`(queryCall.enqueue(queryCaptor.capture())).thenAnswer {
+            queryCaptor.value.onFailure(ApolloNetworkException("network_error"))
         }
 
         // when
@@ -125,8 +133,8 @@ class GraphQLTodoDataSourceTest {
         // given
         `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
 
-        `when`(queryCall.enqueue(captor.capture())).thenAnswer {
-            captor.value.onFailure(ApolloHttpException(null))
+        `when`(queryCall.enqueue(queryCaptor.capture())).thenAnswer {
+            queryCaptor.value.onFailure(ApolloHttpException(null))
         }
 
         // when
@@ -134,5 +142,38 @@ class GraphQLTodoDataSourceTest {
 
         // then
         assertTrue(getAllResult.throwable is DataSourceError.HttpNetworkError)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `addTodo should return new todo when success`() = runBlockingTest {
+        // given
+        val expectedTodo = Todo(
+            id = "generated_id",
+            name = "walk the dog",
+            isDone = true
+        )
+        val createTask = CreateTodoMutation.CreateTask(
+            id = "generated_id",
+            name = "walk the dog",
+            isDone = true,
+        )
+
+        val data = CreateTodoMutation.Data(createTask)
+        val builder =
+            Response.builder<CreateTodoMutation.Data>(CreateTodoMutation("", false)).data(data)
+        val response = Response(builder)
+
+        `when`(apolloClient.mutate(any(CreateTodoMutation::class.java))).thenReturn(mutationCall)
+
+        `when`(mutationCall.enqueue(mutationCaptor.capture())).thenAnswer {
+            mutationCaptor.value.onResponse(response)
+        }
+
+        // when
+        val createTodoResult = graphQlDataSource.add(expectedTodo) as ResultOf.Success
+
+        // then
+        assertEquals(expectedTodo, createTodoResult.value)
     }
 }
