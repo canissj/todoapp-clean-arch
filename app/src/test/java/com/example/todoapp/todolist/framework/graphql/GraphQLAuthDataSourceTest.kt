@@ -1,4 +1,4 @@
-package com.example.todoapp.todolist.framework
+package com.example.todoapp.todolist.framework.graphql
 
 import CreateTokenMutation
 import com.apollographql.apollo.ApolloCall
@@ -9,7 +9,7 @@ import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.example.core.data.AuthDataSource
 import com.example.core.domain.ResultOf
-import com.example.todoapp.todolist.framework.graphql.GraphQLAuthDataSource
+import com.example.todoapp.todolist.framework.DataSourceError
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before

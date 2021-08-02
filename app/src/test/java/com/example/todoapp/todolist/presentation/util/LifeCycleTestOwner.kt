@@ -1,4 +1,4 @@
-package com.example.todoapp.todolist.presentation
+package com.example.todoapp.todolist.presentation.util
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -22,5 +22,9 @@ class LifeCycleTestOwner : LifecycleOwner {
 
     fun onDestroy() {
         registry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    }
+
+    fun onStop() {
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }
 }

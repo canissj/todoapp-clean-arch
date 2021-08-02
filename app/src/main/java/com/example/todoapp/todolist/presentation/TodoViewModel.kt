@@ -10,6 +10,7 @@ import com.example.core.usecases.AddTodo
 import com.example.core.usecases.GetAllTodos
 import com.example.core.usecases.GetToken
 import com.example.core.usecases.SignIn
+import com.example.todoapp.todolist.framework.SingleLiveEvent
 import kotlinx.coroutines.launch
 
 class TodoViewModel(
@@ -24,8 +25,8 @@ class TodoViewModel(
     private val _state: MutableLiveData<State> = MutableLiveData()
     val state: LiveData<State> = _state
 
-    private val _toastMessage: MutableLiveData<String> = MutableLiveData()
-    val toastMessage: LiveData<String> = _toastMessage
+    private val _toastMessage: SingleLiveEvent<String> = SingleLiveEvent()
+    val toastMessage: SingleLiveEvent<String> = _toastMessage
 
     init {
         start()

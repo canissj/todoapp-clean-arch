@@ -1,4 +1,4 @@
-package com.example.todoapp.todolist.framework
+package com.example.todoapp.todolist.framework.graphql
 
 import CreateTodoMutation
 import GetAllTasksQuery
@@ -12,7 +12,7 @@ import com.apollographql.apollo.exception.ApolloHttpException
 import com.example.core.data.TodoDataSource
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
-import com.example.todoapp.todolist.framework.graphql.GraphQLTodoDataSource
+import com.example.todoapp.todolist.framework.DataSourceError
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals

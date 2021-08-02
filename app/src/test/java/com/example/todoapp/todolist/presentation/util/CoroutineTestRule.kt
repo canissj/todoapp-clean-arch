@@ -1,4 +1,4 @@
-package com.example.todoapp.todolist.presentation
+package com.example.todoapp.todolist.presentation.util
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

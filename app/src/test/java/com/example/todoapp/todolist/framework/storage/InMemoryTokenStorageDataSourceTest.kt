@@ -1,4 +1,4 @@
-package com.example.todoapp.todolist.framework
+package com.example.todoapp.todolist.framework.storage
 
 import com.example.todoapp.todolist.framework.storage.InMemoryTokenStorageDataSource
 import org.junit.Before
