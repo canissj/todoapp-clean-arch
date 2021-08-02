@@ -85,7 +85,7 @@ class TodoViewModelTest {
 
         // then
         verify(stateObserver).onChanged(State.Loading)
-        verify(stateObserver).onChanged(State.Error)
+        verify(stateObserver).onChanged(State.ShowRetryError)
         verifyNoMoreInteractions(stateObserver)
     }
 }

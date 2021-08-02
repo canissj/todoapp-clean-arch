@@ -1,12 +1,7 @@
 <resources>
     <string name="app_name">todoapp</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="something_went_wrong">Whoops, something went wrong</string>
+    <string name="retry">RETRY</string>
+    <string name="add_todo_button_content_desc">add todo button</string>
 </resources>

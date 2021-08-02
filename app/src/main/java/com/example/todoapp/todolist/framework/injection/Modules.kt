@@ -1,6 +1,13 @@
 package com.example.todoapp.todolist.framework.injection
 
-import com.example.core.data.*
+import com.example.core.data.AuthDataSource
+import com.example.core.data.AuthRepository
+import com.example.core.data.AuthRepositoryImpl
+import com.example.core.data.TodoDataSource
+import com.example.core.data.TodoRepository
+import com.example.core.data.TodoRepositoryImpl
+import com.example.core.data.TokenStorageDataSource
+import com.example.core.usecases.AddTodo
 import com.example.core.usecases.GetAllTodos
 import com.example.core.usecases.GetToken
 import com.example.core.usecases.SignIn
@@ -36,6 +43,8 @@ val appModule = module {
 
     factory { GetAllTodos(todoRepository = get()) }
 
+    factory { AddTodo(todoRepository = get()) }
+
     // auth
     single<AuthRepository> {
         AuthRepositoryImpl(
@@ -56,5 +65,12 @@ val appModule = module {
     factory { SignIn(authRepository = get()) }
 
     // view models
-    viewModel { TodoViewModel(signIn = get(), getAllTodos = get(), getToken = get()) }
+    viewModel {
+        TodoViewModel(
+            signIn = get(),
+            getAllTodos = get(),
+            addTodo = get(),
+            getToken = get()
+        )
+    }
 }
