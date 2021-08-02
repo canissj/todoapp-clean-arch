@@ -48,7 +48,6 @@ class TodoViewModelTest {
             Todo(
                 id = "id",
                 name = "walk the dog",
-                note = "remember",
                 isDone = false
             )
         )

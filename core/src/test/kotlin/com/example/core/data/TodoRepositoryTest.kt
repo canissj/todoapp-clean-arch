@@ -115,8 +115,8 @@ class TodoRepositoryTest {
     @Test
     fun `getAllTodos should return list of todos`() = runBlockingTest {
         // given
-        val todo = Todo(id = "generated_id", name = "laundry", isDone = true)
-        val todo2 = Todo(id = "generated_id2", name = "walk te dog", isDone = false)
+        val todo = Todo(id = "generated_id", name = "laundry")
+        val todo2 = Todo(id = "generated_id2", name = "walk te dog")
         val todoList = listOf(todo, todo2)
 
         Mockito.`when`(todoDataSource.getAll()).thenReturn(ResultOf.Success(todoList))
@@ -155,7 +155,7 @@ class TodoRepositoryTest {
         // given
         val id = "generated_id"
         val isDone = true
-        val expectedTodo = Todo(id = id, name = "laundry", isDone = isDone)
+        val expectedTodo = Todo(id = id, name = "laundry")
 
         Mockito.`when`(todoDataSource.update(id, isDone)).thenReturn(ResultOf.Success(expectedTodo))
 

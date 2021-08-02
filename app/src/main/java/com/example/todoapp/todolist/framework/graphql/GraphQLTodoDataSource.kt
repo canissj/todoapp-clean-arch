@@ -1,5 +1,6 @@
 package com.example.todoapp.todolist.framework.graphql
 
+import CreateTodoMutation
 import GetAllTasksQuery
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.coroutines.await
@@ -41,7 +42,19 @@ class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSo
     }
 
     override suspend fun add(todo: Todo): ResultOf<Todo> {
-        TODO("Not yet implemented")
+        val response = try {
+            apolloClient.mutate(CreateTodoMutation(todo.name, todo.isDone)).await()
+        } catch (e: ApolloException) {
+            return ResultOf.Failure()
+        }
+
+        response.data?.let {
+            it.createTask?.let { todo ->
+                return ResultOf.Success(Todo(todo.id, todo.name, todo.isDone))
+            }
+        }
+
+        return ResultOf.Failure("could not add todo")
     }
 
     override suspend fun delete(id: String): ResultOf<Boolean> {

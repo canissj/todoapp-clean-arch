@@ -58,6 +58,10 @@ class TodoListFragment : Fragment() {
                 }
             }
         })
+
+        binding.addTodoBtn.setOnClickListener {
+            AddTodoDialog.newInstance().show(parentFragmentManager, "add_todo_dialog")
+        }
     }
 
     override fun onDestroyView() {

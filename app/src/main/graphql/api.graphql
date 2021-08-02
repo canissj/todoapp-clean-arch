@@ -10,3 +10,11 @@ query GetAllTasks {
 mutation CreateToken($userName: String!, $apiKey: String!) {
     generateAccessToken(apiKey: $apiKey, userName: $userName)
 }
+
+mutation CreateTodo($name: String!, $isDone: Boolean!) {
+    createTask(name: $name, isDone: $isDone) {
+        id
+        name
+        isDone
+    }
+}

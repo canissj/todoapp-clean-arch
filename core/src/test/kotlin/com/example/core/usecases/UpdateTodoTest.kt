@@ -33,7 +33,7 @@ class UpdateTodoTest {
         // given
         val id = "generated_id"
         val isDone = true
-        val expectedTodo = Todo(id = id, name = "laundry", isDone = isDone)
+        val expectedTodo = Todo(id = id, name = "laundry")
 
         Mockito.`when`(repository.updateTodo(id, isDone)).thenReturn(ResultOf.Success(expectedTodo))
 

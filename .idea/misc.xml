@@ -5,6 +5,7 @@
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.21823207868522596" />
+        <entry key="app/src/main/res/layout/add_todo_dialog.xml" value="0.221875" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.296195652173913" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.296195652173913" />

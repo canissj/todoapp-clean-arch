@@ -4,4 +4,6 @@
     <string name="something_went_wrong">Whoops, something went wrong</string>
     <string name="retry">RETRY</string>
     <string name="add_todo_button_content_desc">add todo button</string>
+    <string name="add_todo_ok_btn">OK</string>
+    <string name="add_your_new_todo">Add your new todo</string>
 </resources>

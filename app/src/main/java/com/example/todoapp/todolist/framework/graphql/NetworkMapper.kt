@@ -10,7 +10,6 @@ object NetworkMapper {
                 Todo(
                     id = task!!.id,
                     name = task.name,
-                    note = task.note,
                     isDone = task.isDone
                 )
             }

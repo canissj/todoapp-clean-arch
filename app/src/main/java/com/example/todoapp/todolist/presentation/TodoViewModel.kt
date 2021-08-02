@@ -46,20 +46,20 @@ class TodoViewModel(
                     }
                 }
                 is ResultOf.Failure -> {
-                    showRetryError()
+                    _state.value = State.ShowRetryError
                 }
             }
         }
     }
 
-    private fun showRetryError() {
-        _state.value = State.ShowRetryError
-    }
-
-    fun addNewTodo(todo: Todo) {
+    fun addNewTodo(todo: String) {
+        if (todo.isEmpty()) {
+            _toastMessage.value = "Cannot add an empty todo"
+            return
+        }
         viewModelScope.launch {
             _state.value = State.Loading
-            when (val result = addTodo(todo)) {
+            when (val result = addTodo(Todo(name = todo, isDone = false))) {
                 is ResultOf.Success -> {
                     cacheTodoList.add(result.value)
                     _state.value = State.ShowTodos(cacheTodoList)

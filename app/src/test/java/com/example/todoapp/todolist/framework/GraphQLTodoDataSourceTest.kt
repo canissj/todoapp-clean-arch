@@ -52,8 +52,7 @@ class GraphQLTodoDataSourceTest {
         val expectedTodo = Todo(
             id = "generated_id",
             name = "walk the dog",
-            isDone = true,
-            note = "note"
+            isDone = true
         )
         val listOfTasks = listOf(
             GetAllTasksQuery.AllTask(

@@ -31,8 +31,8 @@ class GetAllTodosTest {
     @Test
     fun `getAllTodos should return list of todos`() = runBlockingTest {
         // given
-        val todo = Todo(id = "generated_id", name = "laundry", isDone = true)
-        val todo2 = Todo(id = "generated_id2", name = "walk te dog", isDone = false)
+        val todo = Todo(id = "generated_id", name = "laundry")
+        val todo2 = Todo(id = "generated_id2", name = "walk te dog")
         val todoList = listOf(todo, todo2)
 
         Mockito.`when`(repository.getAllTodos()).thenReturn(ResultOf.Success(todoList))
