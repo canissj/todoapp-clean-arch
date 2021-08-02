@@ -9,7 +9,6 @@ import com.apollographql.apollo.ApolloQueryCall
 import com.apollographql.apollo.api.Error
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloHttpException
-import com.apollographql.apollo.exception.ApolloNetworkException
 import com.example.core.data.TodoDataSource
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
@@ -112,23 +111,6 @@ class GraphQLTodoDataSourceTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun `getAll should return failure when connectivity error`() = runBlockingTest {
-        // given
-        `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
-
-        `when`(queryCall.enqueue(queryCaptor.capture())).thenAnswer {
-            queryCaptor.value.onFailure(ApolloNetworkException("network_error"))
-        }
-
-        // when
-        val getAllResult = graphQlDataSource.getAll() as ResultOf.Failure
-
-        // then
-        assertTrue(getAllResult.throwable is DataSourceError.HttpConnectivityNetworkError)
-    }
-
-    @ExperimentalCoroutinesApi
-    @Test
     fun `getAll should return failure when http error`() = runBlockingTest {
         // given
         `when`(apolloClient.query(any(GetAllTasksQuery::class.java))).thenReturn(queryCall)
@@ -175,5 +157,56 @@ class GraphQLTodoDataSourceTest {
 
         // then
         assertEquals(expectedTodo, createTodoResult.value)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `addTodo should return HttpNetworkError when api error`() = runBlockingTest {
+        // given
+        val expectedTodo = Todo(
+            id = "generated_id",
+            name = "walk the dog",
+            isDone = true
+        )
+
+        `when`(apolloClient.mutate(any(CreateTodoMutation::class.java))).thenReturn(mutationCall)
+
+        `when`(mutationCall.enqueue(mutationCaptor.capture())).thenAnswer {
+            mutationCaptor.value.onFailure(ApolloHttpException(null))
+        }
+
+        // when
+        val createTodoResult = graphQlDataSource.add(expectedTodo) as ResultOf.Failure
+
+        // then
+        assertTrue(createTodoResult.throwable is DataSourceError.HttpNetworkError)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `addTodo should return UnknownError when api error`() = runBlockingTest {
+        // given
+        val expectedTodo = Todo(
+            id = "generated_id",
+            name = "walk the dog",
+            isDone = true
+        )
+
+        val errors = listOf(Error("some_error"))
+        val builder =
+            Response.builder<CreateTodoMutation.Data>(CreateTodoMutation("", false)).errors(errors)
+        val response = Response(builder)
+
+        `when`(apolloClient.mutate(any(CreateTodoMutation::class.java))).thenReturn(mutationCall)
+
+        `when`(mutationCall.enqueue(mutationCaptor.capture())).thenAnswer {
+            mutationCaptor.value.onResponse(response)
+        }
+
+        // when
+        val createTodoResult = graphQlDataSource.add(expectedTodo) as ResultOf.Failure
+
+        // then
+        assertTrue(createTodoResult.throwable is DataSourceError.UnknownError)
     }
 }

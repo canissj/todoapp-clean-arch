@@ -5,7 +5,6 @@ import GetAllTasksQuery
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.coroutines.await
 import com.apollographql.apollo.exception.ApolloException
-import com.apollographql.apollo.exception.ApolloNetworkException
 import com.example.core.data.TodoDataSource
 import com.example.core.domain.ResultOf
 import com.example.core.domain.Todo
@@ -14,18 +13,14 @@ import com.example.todoapp.todolist.framework.DataSourceError
 class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSource {
 
     override suspend fun getAll(): ResultOf<List<Todo>> {
+        val errorMsg = "fail to fetch todos"
         val response = try {
             apolloClient
                 .query(GetAllTasksQuery())
                 .await()
-        } catch (e: ApolloNetworkException) {
-            return ResultOf.Failure(
-                "fail to fetch todos",
-                throwable = DataSourceError.HttpConnectivityNetworkError(e.message)
-            )
         } catch (e: ApolloException) {
             return ResultOf.Failure(
-                "fail to fetch todos",
+                errorMsg,
                 throwable = DataSourceError.HttpNetworkError(e.message)
             )
         }
@@ -36,16 +31,20 @@ class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSo
         }
 
         return ResultOf.Failure(
-            message = "failed to fetch todos",
+            message = errorMsg,
             throwable = DataSourceError.UnknownError(response.errors?.first()?.message)
         )
     }
 
     override suspend fun add(todo: Todo): ResultOf<Todo> {
+        val errorMsg = "failed to add todo"
         val response = try {
             apolloClient.mutate(CreateTodoMutation(todo.name, todo.isDone)).await()
         } catch (e: ApolloException) {
-            return ResultOf.Failure()
+            return ResultOf.Failure(
+                message = errorMsg,
+                throwable = DataSourceError.HttpNetworkError(e.message)
+            )
         }
 
         response.data?.let {
@@ -54,7 +53,10 @@ class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSo
             }
         }
 
-        return ResultOf.Failure("could not add todo")
+        return ResultOf.Failure(
+            message = errorMsg,
+            throwable = DataSourceError.UnknownError(response.errors?.first()?.message)
+        )
     }
 
     override suspend fun delete(id: String): ResultOf<Boolean> {
