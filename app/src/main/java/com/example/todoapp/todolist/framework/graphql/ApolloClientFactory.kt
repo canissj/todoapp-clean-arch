@@ -2,13 +2,19 @@ package com.example.todoapp.todolist.framework.graphql
 
 import com.apollographql.apollo.ApolloClient
 import com.example.core.data.TokenStorageDataSource
+import com.example.todoapp.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
 class ApolloClientFactory(private val tokenStorageDataSource: TokenStorageDataSource) {
 
-    private val log: HttpLoggingInterceptor =
-        HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+    private val log: HttpLoggingInterceptor
+        get() = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+        } else {
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE)
+        }
+
 
     fun getApolloClient(): ApolloClient {
         val okHttpClient = OkHttpClient

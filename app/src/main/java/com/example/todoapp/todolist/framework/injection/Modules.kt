@@ -23,8 +23,7 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    single<TokenStorageDataSource> { InMemoryTokenStorageDataSource() }
-
+    // apollo
     factory { ApolloClientFactory(tokenStorageDataSource = get()) }
 
     single {
@@ -37,22 +36,7 @@ val appModule = module {
         apolloClientFactory.getApolloClientForAuth()
     }
 
-    factory<TodoDataSource> { GraphQLTodoDataSource(apolloClient = get()) }
-
-    single<TodoRepository> { TodoRepositoryImpl(todoDataSource = get()) }
-
-    factory { GetAllTodos(todoRepository = get()) }
-
-    factory { AddTodo(todoRepository = get()) }
-
-    // auth
-    single<AuthRepository> {
-        AuthRepositoryImpl(
-            authDataSource = get(),
-            tokenStorageDataSource = get()
-        )
-    }
-
+    // data sources
     factory<AuthDataSource> {
         GraphQLAuthDataSource(
             apolloClient = get(named("auth")),
@@ -60,9 +44,28 @@ val appModule = module {
         )
     }
 
+    factory<TodoDataSource> { GraphQLTodoDataSource(apolloClient = get()) }
+
+    single<TokenStorageDataSource> { InMemoryTokenStorageDataSource() }
+
+    // repositories
+    single<TodoRepository> { TodoRepositoryImpl(todoDataSource = get()) }
+
+    single<AuthRepository> {
+        AuthRepositoryImpl(
+            authDataSource = get(),
+            tokenStorageDataSource = get()
+        )
+    }
+
+    // use cases
     factory { GetToken(authRepository = get()) }
 
     factory { SignIn(authRepository = get()) }
+
+    factory { GetAllTodos(todoRepository = get()) }
+
+    factory { AddTodo(todoRepository = get()) }
 
     // view models
     viewModel {

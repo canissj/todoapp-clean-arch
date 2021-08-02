@@ -29,6 +29,7 @@ class TodoViewModel(
     private val _toastMessage: SingleLiveEvent<String> = SingleLiveEvent()
     val toastMessage: SingleLiveEvent<String> = _toastMessage
 
+    // we use always the same user for simplicity
     private val userName = "user1"
 
     init {
