@@ -8,6 +8,7 @@ import com.example.core.usecases.AddTodo
 import com.example.core.usecases.GetAllTodos
 import com.example.core.usecases.GetToken
 import com.example.core.usecases.SignIn
+import com.example.todoapp.todolist.framework.DataSourceError
 import com.example.todoapp.todolist.presentation.util.CoroutineTestRule
 import com.example.todoapp.todolist.presentation.util.LifeCycleTestOwner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -226,6 +227,28 @@ class TodoViewModelTest {
 
     @ExperimentalCoroutinesApi
     @Test
+    fun `getTodos should call signIn when auth error`() = runBlockingTest {
+        // given
+        val lifeCycleTestOwner = LifeCycleTestOwner()
+        val result = ResultOf.Failure(throwable = DataSourceError.AuthenticationError("auth_err"))
+        `when`(getAllTodos()).thenReturn(result)
+
+        val stateLiveData = todoViewModel.state
+        stateLiveData.observe(lifeCycleTestOwner, stateObserver)
+
+        // when
+        lifeCycleTestOwner.onResume()
+        todoViewModel.getTodos()
+
+        // then
+        verify(stateObserver, times(2)).onChanged(State.Loading)
+        verify(stateObserver).onChanged(State.ShowRetryError)
+        verify(signIn, times(2)).invoke("user1")
+        verifyNoMoreInteractions(stateObserver)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
     fun `addTodo should post ShowTodos with new todo when success`() = runBlockingTest {
         // given
         val lifeCycleTestOwner = LifeCycleTestOwner()
@@ -300,6 +323,42 @@ class TodoViewModelTest {
         // then
         verify(stateObserver).onChanged(State.Loading)
         verify(toastObserver).onChanged("Cannot add an empty todo")
+        verifyNoMoreInteractions(stateObserver)
+    }
+
+    @Test
+    fun `addTodo should call signIn when auth error`() = runBlockingTest {
+        // given
+        val lifeCycleTestOwner = LifeCycleTestOwner()
+        val addedTodo =
+            Todo(
+                name = "walk the dog",
+                isDone = false
+            )
+
+        `when`(addTodo(addedTodo)).thenReturn(
+            ResultOf.Failure(
+                throwable = DataSourceError.AuthenticationError(
+                    "auth_err"
+                )
+            )
+        )
+
+        val stateLiveData = todoViewModel.state
+        stateLiveData.observe(lifeCycleTestOwner, stateObserver)
+
+        val toastLiveData = todoViewModel.toastMessage
+        toastLiveData.observe(lifeCycleTestOwner, toastObserver)
+
+        // when
+        lifeCycleTestOwner.onResume()
+        todoViewModel.addNewTodo("walk the dog")
+
+        // then
+        verify(stateObserver, times(2)).onChanged(State.Loading)
+        verify(stateObserver).onChanged(State.ShowTodos(listOf()))
+        verify(toastObserver).onChanged("Could not add new todo")
+        verify(signIn, times(2)).invoke("user1")
         verifyNoMoreInteractions(stateObserver)
     }
 }
