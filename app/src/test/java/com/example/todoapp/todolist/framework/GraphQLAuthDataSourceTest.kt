@@ -37,11 +37,9 @@ class GraphQLAuthDataSourceTest {
 
     private lateinit var graphQlAuthDataSource: AuthDataSource
 
-    private val apiKey: String = "some_key"
-
     @Before
     fun setUp() {
-        graphQlAuthDataSource = GraphQLAuthDataSource(apolloClient, apiKey)
+        graphQlAuthDataSource = GraphQLAuthDataSource(apolloClient, "apiKey")
     }
 
     @ExperimentalCoroutinesApi

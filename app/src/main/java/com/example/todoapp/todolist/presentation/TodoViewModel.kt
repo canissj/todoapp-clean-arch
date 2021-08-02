@@ -81,7 +81,11 @@ class TodoViewModel(
                     cacheTodoList.addAll(result.value)
                 }
                 is ResultOf.Failure -> {
-                    _state.value = State.ShowRetryError
+                    if (cacheTodoList.isNotEmpty()) {
+                        _state.value = State.ShowTodos(cacheTodoList)
+                    } else {
+                        _state.value = State.ShowRetryError
+                    }
                 }
             }
         }

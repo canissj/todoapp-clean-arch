@@ -74,7 +74,7 @@ class TodoViewModelTest {
         todoViewModel.getTodos()
 
         // then
-        verify(stateObserver).onChanged(State.Loading)
+        verify(stateObserver, times(2)).onChanged(State.Loading)
         verify(stateObserver).onChanged(State.ShowTodos(expectedTodos))
         verifyNoMoreInteractions(stateObserver)
     }
@@ -95,8 +95,74 @@ class TodoViewModelTest {
         todoViewModel.getTodos()
 
         // then
-        verify(stateObserver).onChanged(State.Loading)
+        verify(stateObserver, times(2)).onChanged(State.Loading)
         verify(stateObserver).onChanged(State.ShowRetryError)
+        verifyNoMoreInteractions(stateObserver)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `getTodos should post ShowTodos if todo cache is available`() = runBlockingTest {
+        // given
+        val lifeCycleTestOwner = LifeCycleTestOwner()
+        val expectedTodos = listOf(
+            Todo(
+                id = "id",
+                name = "walk the dog",
+                isDone = false
+            )
+        )
+        val successResult = ResultOf.Success(expectedTodos)
+        val failureResult = ResultOf.Failure()
+
+        `when`(getAllTodos())
+            .thenReturn(successResult)
+            .thenReturn(failureResult)
+
+        val stateLiveData = todoViewModel.state
+        stateLiveData.observe(lifeCycleTestOwner, stateObserver)
+
+        // when
+        lifeCycleTestOwner.onResume()
+        todoViewModel.getTodos() // success call to fill cache
+        todoViewModel.getTodos() // failure call but should return cache
+
+        // then
+        verify(stateObserver, times(3)).onChanged(State.Loading)
+        verify(stateObserver, times(2)).onChanged(State.ShowTodos(expectedTodos))
+        verifyNoMoreInteractions(stateObserver)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `addTodo should post ShowTodos with new todo when success`() = runBlockingTest {
+        // given
+        val lifeCycleTestOwner = LifeCycleTestOwner()
+        val expectedTodos = listOf(
+            Todo(
+                id = "id",
+                name = "walk the dog",
+                isDone = false
+            )
+        )
+        val successResult = ResultOf.Success(expectedTodos)
+        val failureResult = ResultOf.Failure()
+
+        `when`(getAllTodos())
+            .thenReturn(successResult)
+            .thenReturn(failureResult)
+
+        val stateLiveData = todoViewModel.state
+        stateLiveData.observe(lifeCycleTestOwner, stateObserver)
+
+        // when
+        lifeCycleTestOwner.onResume()
+        todoViewModel.getTodos() // success call to fill cache
+        todoViewModel.getTodos() // failure call but should return cache
+
+        // then
+        verify(stateObserver, times(3)).onChanged(State.Loading)
+        verify(stateObserver, times(2)).onChanged(State.ShowTodos(expectedTodos))
         verifyNoMoreInteractions(stateObserver)
     }
 }
