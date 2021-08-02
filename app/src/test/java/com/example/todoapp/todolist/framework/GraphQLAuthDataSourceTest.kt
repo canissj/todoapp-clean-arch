@@ -4,10 +4,11 @@ import CreateTokenMutation
 import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.ApolloMutationCall
+import com.apollographql.apollo.api.Error
 import com.apollographql.apollo.api.Response
+import com.apollographql.apollo.exception.ApolloHttpException
 import com.example.core.data.AuthDataSource
 import com.example.core.domain.ResultOf
-import com.example.core.domain.Todo
 import com.example.todoapp.todolist.framework.graphql.GraphQLAuthDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
@@ -66,5 +67,47 @@ class GraphQLAuthDataSourceTest {
 
         // then
         assertEquals(accessToken, resultSignIn.value)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `sigIn should return UnknownError when data is null`() = runBlockingTest {
+        // given
+        val listOfErrors = listOf(Error("some_error"))
+        val builder =
+            Response.builder<CreateTokenMutation.Data>(CreateTokenMutation("", ""))
+                .errors(listOfErrors)
+        val response = Response(builder)
+
+        Mockito.`when`(apolloClient.mutate(any(CreateTokenMutation::class.java)))
+            .thenReturn(mutationCall)
+
+        Mockito.`when`(mutationCall.enqueue(mutationCaptor.capture())).thenAnswer {
+            mutationCaptor.value.onResponse(response)
+        }
+
+        // when
+        val resultSignIn = graphQlAuthDataSource.signIn("username") as ResultOf.Failure
+
+        // then
+        assertTrue(resultSignIn.throwable is UnknownError)
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `sigIn should return HttpNetworkError when api error`() = runBlockingTest {
+        // given
+        Mockito.`when`(apolloClient.mutate(any(CreateTokenMutation::class.java)))
+            .thenReturn(mutationCall)
+
+        Mockito.`when`(mutationCall.enqueue(mutationCaptor.capture())).thenAnswer {
+            mutationCaptor.value.onFailure(ApolloHttpException(null))
+        }
+
+        // when
+        val resultSignIn = graphQlAuthDataSource.signIn("username") as ResultOf.Failure
+
+        // then
+        assertTrue(resultSignIn.throwable is DataSourceError.HttpNetworkError)
     }
 }

@@ -6,6 +6,7 @@ import com.apollographql.apollo.coroutines.await
 import com.apollographql.apollo.exception.ApolloException
 import com.example.core.data.AuthDataSource
 import com.example.core.domain.ResultOf
+import com.example.todoapp.todolist.framework.DataSourceError
 
 class GraphQLAuthDataSource(private val apolloClient: ApolloClient, private val apiKey: String) :
     AuthDataSource {
@@ -13,13 +14,16 @@ class GraphQLAuthDataSource(private val apolloClient: ApolloClient, private val 
         val response = try {
             apolloClient.mutate(CreateTokenMutation(userName = userName, apiKey = apiKey)).await()
         } catch (e: ApolloException) {
-            return ResultOf.Failure("failed to sign in", e)
+            return ResultOf.Failure(
+                "failed to sign in",
+                DataSourceError.HttpNetworkError(e.message)
+            )
         }
 
         return response.data?.generateAccessToken?.let {
             ResultOf.Success(it)
         } ?: run {
-            ResultOf.Failure(message = "failed to sign in")
+            ResultOf.Failure(message = "failed to sign in", throwable = UnknownError())
         }
     }
 }
