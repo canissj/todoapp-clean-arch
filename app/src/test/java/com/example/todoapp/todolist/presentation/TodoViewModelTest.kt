@@ -277,6 +277,7 @@ class TodoViewModelTest {
 
         // then
         verify(stateObserver, times(2)).onChanged(State.Loading)
+        verify(stateObserver).onChanged(State.ShowTodos(listOf()))
         verify(toastObserver).onChanged("Could not add new todo")
         verifyNoMoreInteractions(stateObserver)
     }
@@ -285,8 +286,6 @@ class TodoViewModelTest {
     @Test
     fun `addTodo should post toast message with error when todo is empty`() = runBlockingTest {
         // given
-        val cacheTodos = listOf<Todo>()
-
         val lifeCycleTestOwner = LifeCycleTestOwner()
         val stateLiveData = todoViewModel.state
         stateLiveData.observe(lifeCycleTestOwner, stateObserver)
@@ -300,7 +299,6 @@ class TodoViewModelTest {
 
         // then
         verify(stateObserver).onChanged(State.Loading)
-        verify(stateObserver).onChanged(State.ShowTodos(cacheTodos))
         verify(toastObserver).onChanged("Cannot add an empty todo")
         verifyNoMoreInteractions(stateObserver)
     }
