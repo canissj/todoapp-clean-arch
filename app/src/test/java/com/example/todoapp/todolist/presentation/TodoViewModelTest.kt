@@ -91,33 +91,34 @@ class TodoViewModelTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun `init should post ShowTodos and call signIn when token is not available`() = runBlockingTest {
-        // given
-        val lifeCycleTestOwner = LifeCycleTestOwner()
-        val expectedTodos = listOf(
-            Todo(
-                id = "id",
-                name = "walk the dog",
-                isDone = false
+    fun `init should post ShowTodos and call signIn when token is not available`() =
+        runBlockingTest {
+            // given
+            val lifeCycleTestOwner = LifeCycleTestOwner()
+            val expectedTodos = listOf(
+                Todo(
+                    id = "id",
+                    name = "walk the dog",
+                    isDone = false
+                )
             )
-        )
-        val result = ResultOf.Success(expectedTodos)
-        `when`(getAllTodos()).thenReturn(result)
-        `when`(getToken()).thenReturn(null)
-        `when`(signIn("user1")).thenReturn(ResultOf.Success(true))
+            val result = ResultOf.Success(expectedTodos)
+            `when`(getAllTodos()).thenReturn(result)
+            `when`(getToken()).thenReturn(null)
+            `when`(signIn("user1")).thenReturn(ResultOf.Success(true))
 
-        // when
-        val localTodoViewModel = TodoViewModel(signIn, getAllTodos, addTodo, getToken)
+            // when
+            val localTodoViewModel = TodoViewModel(signIn, getAllTodos, addTodo, getToken)
 
-        val stateLiveData = localTodoViewModel.state
-        stateLiveData.observe(lifeCycleTestOwner, stateObserver)
-        lifeCycleTestOwner.onResume()
+            val stateLiveData = localTodoViewModel.state
+            stateLiveData.observe(lifeCycleTestOwner, stateObserver)
+            lifeCycleTestOwner.onResume()
 
-        // then
-        verify(stateObserver).onChanged(State.ShowTodos(expectedTodos))
-        verify(signIn, times(2)).invoke("user1")
-        verifyNoMoreInteractions(stateObserver)
-    }
+            // then
+            verify(stateObserver).onChanged(State.ShowTodos(expectedTodos))
+            verify(signIn, times(2)).invoke("user1")
+            verifyNoMoreInteractions(stateObserver)
+        }
 
     @ExperimentalCoroutinesApi
     @Test
@@ -284,8 +285,9 @@ class TodoViewModelTest {
     @Test
     fun `addTodo should post toast message with error when todo is empty`() = runBlockingTest {
         // given
-        val lifeCycleTestOwner = LifeCycleTestOwner()
+        val cacheTodos = listOf<Todo>()
 
+        val lifeCycleTestOwner = LifeCycleTestOwner()
         val stateLiveData = todoViewModel.state
         stateLiveData.observe(lifeCycleTestOwner, stateObserver)
 
@@ -298,6 +300,7 @@ class TodoViewModelTest {
 
         // then
         verify(stateObserver).onChanged(State.Loading)
+        verify(stateObserver).onChanged(State.ShowTodos(cacheTodos))
         verify(toastObserver).onChanged("Cannot add an empty todo")
         verifyNoMoreInteractions(stateObserver)
     }

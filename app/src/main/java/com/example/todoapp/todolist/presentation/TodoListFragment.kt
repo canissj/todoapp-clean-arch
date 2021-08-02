@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.example.todoapp.databinding.FragmentTodoListBinding
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -59,8 +60,16 @@ class TodoListFragment : Fragment() {
             }
         })
 
+        todoViewModel.toastMessage.observe(viewLifecycleOwner, {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        })
+
         binding.addTodoBtn.setOnClickListener {
             AddTodoDialog.newInstance().show(parentFragmentManager, "add_todo_dialog")
+        }
+
+        binding.retryErrorContainer.errorBtn.setOnClickListener {
+            todoViewModel.getTodos()
         }
     }
 

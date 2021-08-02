@@ -10,6 +10,7 @@ import com.example.core.usecases.AddTodo
 import com.example.core.usecases.GetAllTodos
 import com.example.core.usecases.GetToken
 import com.example.core.usecases.SignIn
+import com.example.todoapp.todolist.framework.DataSourceError
 import com.example.todoapp.todolist.framework.SingleLiveEvent
 import kotlinx.coroutines.launch
 
@@ -28,6 +29,8 @@ class TodoViewModel(
     private val _toastMessage: SingleLiveEvent<String> = SingleLiveEvent()
     val toastMessage: SingleLiveEvent<String> = _toastMessage
 
+    private val userName = "user1"
+
     init {
         start()
     }
@@ -40,9 +43,9 @@ class TodoViewModel(
 
         viewModelScope.launch {
             _state.value = State.Loading
-            when (val sigInResult = signIn("user1")) {
+            when (val result = signIn(userName)) {
                 is ResultOf.Success -> {
-                    if (sigInResult.value) {
+                    if (result.value) {
                         getTodos()
                     }
                 }
@@ -66,6 +69,8 @@ class TodoViewModel(
                     _state.value = State.ShowTodos(cacheTodoList)
                 }
                 is ResultOf.Failure -> {
+                    handleAuthError(result)
+                    _state.value = State.ShowTodos(cacheTodoList)
                     _toastMessage.value = "Could not add new todo"
                 }
             }
@@ -82,12 +87,21 @@ class TodoViewModel(
                     cacheTodoList.addAll(result.value)
                 }
                 is ResultOf.Failure -> {
+                    handleAuthError(result)
                     if (cacheTodoList.isNotEmpty()) {
                         _state.value = State.ShowTodos(cacheTodoList)
                     } else {
                         _state.value = State.ShowRetryError
                     }
                 }
+            }
+        }
+    }
+
+    private fun handleAuthError(failure: ResultOf.Failure) {
+        if (failure.throwable is DataSourceError.AuthenticationError) {
+            viewModelScope.launch {
+                signIn(userName)
             }
         }
     }

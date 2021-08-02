@@ -12,6 +12,8 @@ import com.example.todoapp.todolist.framework.DataSourceError
 
 class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSource {
 
+    private val authError = "Access token is not valid"
+
     override suspend fun getAll(): ResultOf<List<Todo>> {
         val errorMsg = "fail to fetch todos"
         val response = try {
@@ -25,9 +27,16 @@ class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSo
             )
         }
 
-        response.data?.let {
-            val todos = NetworkMapper.toListOfTodos(it.allTasks)
+        response.data?.allTasks?.let {
+            val todos = NetworkMapper.toListOfTodos(it)
             return ResultOf.Success(todos)
+        }
+
+        if (authError.equals(response.errors?.first()?.message, ignoreCase = false)) {
+            return ResultOf.Failure(
+                message = errorMsg,
+                throwable = DataSourceError.AuthenticationError(authError)
+            )
         }
 
         return ResultOf.Failure(
@@ -47,10 +56,16 @@ class GraphQLTodoDataSource(private val apolloClient: ApolloClient) : TodoDataSo
             )
         }
 
-        response.data?.let {
-            it.createTask?.let { todo ->
-                return ResultOf.Success(Todo(todo.id, todo.name, todo.isDone))
-            }
+        response.data?.createTask?.let {
+            return ResultOf.Success(Todo(it.id, it.name, it.isDone))
+
+        }
+
+        if (authError.equals(response.errors?.first()?.message, ignoreCase = false)) {
+            return ResultOf.Failure(
+                message = errorMsg,
+                throwable = DataSourceError.AuthenticationError(authError)
+            )
         }
 
         return ResultOf.Failure(
