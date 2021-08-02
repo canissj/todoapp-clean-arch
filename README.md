@@ -15,4 +15,4 @@ In order to use the app, you should provide a valid API KEY. For this, create a 
 API_KEY=<your_api_key>
 
 ## Features
-You can fetch exiting and add new todos. Add/Remove/Update operations are not yet implemented.
+You can fetch exiting and add new todos. Add/Remove/Update operations are not yet implemented. For simplicity, the UI is minimalist and the same user is always used.
